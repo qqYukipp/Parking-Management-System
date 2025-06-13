@@ -1,0 +1,55 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cgr.mapper.UserMapper">
+
+    <delete id="deleteBatch" parameterType="list">
+        delete from cp_user
+        where id in
+        <foreach collection="userIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+
+    <select id="findCommonUser" resultType="com.cgr.entity.CPUser">
+        SELECT
+        id,
+        username,
+        nick_name,  <!-- 修正字段名 -->
+        avatar,
+        email,
+        phone,
+        sex<!-- 新增字段 -->
+        FROM cp_user u
+        left join cp_user_role ur on u.id = ur.user_id
+        <where>
+            ur.role_id = 3
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <!-- 密码字段保留但增加空值检查 -->
+            <if test="password != null and password != ''">
+                AND password = #{password}
+            </if>
+            <!-- nickName 替换 name -->
+            <if test="nickName != null and nickName != ''">
+                AND nick_name LIKE CONCAT('%', #{nickName}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone = #{phone}
+            </if>
+            <if test="email != null and email != ''">
+                AND email = #{email}
+            </if>
+            <if test="avatar != null and avatar != ''">
+                AND avatar = #{avatar}
+            </if>
+            <!-- 新增 sex 字段 -->
+            <if test="sex != null and sex != ''">
+                AND sex = #{sex}
+            </if>
+        </where>
+    </select>
+</mapper>

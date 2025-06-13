@@ -1,0 +1,105 @@
+.manager-container {
+    background-color: #f8f8ff;
+    min-height: 100vh;
+}
+
+.manager-header {
+    height: 60px;
+    background-color: #2c334c;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+}
+
+.manager-header-left {
+    background-color: #2c334c;
+    width: 200px;
+    height: 100%;
+    padding-left: 10px;
+    display: flex;
+    align-items: center
+}
+
+.manager-header-left img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.manager-header-left .title {
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 10px;
+    color: #eee;
+}
+
+.manager-header-center {
+    flex: 1;
+    padding-left: 20px;
+}
+
+.manager-main-left {
+    width: 200px;
+    background-color: #222b40;
+    min-height: calc(100vh - 60px);
+    box-shadow: 0 0 6px rgba(0, 21, 41, .35);
+}
+
+.manager-main-right {
+    flex: 1;
+    width: 0;
+    background-color: #f8f8ff;
+    padding: 10px;
+}
+
+
+/* ElementUI */
+.el-menu {
+    border: none;
+    background-color: #222b40;
+}
+
+.el-tooltip__trigger {
+    outline: none;
+}
+
+/deep/.el-sub-menu__title {
+    color: #ccc !important;
+    height: 50px;
+    line-height: 50px;
+    background-color: #222b40 !important;
+}
+
+.el-sub-menu__title:hover {
+    background-color: #222b40; /* 必须加上这个背景色，否则鼠标移入会出现白色 */
+    color: #fff;
+}
+
+.el-menu-item {
+    color: #ccc;
+    height: 50px;
+    line-height: 50px;
+    background-color: #222b40 !important; /* 必须加上这个背景色，否则鼠标离开会出现白色 */
+}
+
+.el-menu--inline .el-menu-item {
+    background-color: #222b40 !important;
+}
+
+.el-menu-item.is-active {
+    background-color: #222b40 !important;
+    color: #3399ff;
+}
+
+.el-menu-item:not(.is-active):hover {
+    color: #fff;
+}
+
+/deep/.el-breadcrumb__inner {
+    color: #ccc !important;
+}
+
+/deep/.manager-header-right span {
+    color: #cccccc;
+}

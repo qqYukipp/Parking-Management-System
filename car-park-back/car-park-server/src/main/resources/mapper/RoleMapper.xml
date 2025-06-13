@@ -1,0 +1,49 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cgr.mapper.RoleMapper">
+
+    <insert id="insertUserRole">
+        insert into cp_user_role(user_id, role_id)
+        values (#{userId}, #{roleId})
+    </insert>
+
+
+    <delete id="deleteByUserId" parameterType="java.lang.Long">
+        delete from cp_user_role
+        where user_id = #{userId}
+    </delete>
+
+
+    <delete id="deleteBatch" parameterType="java.util.List">
+        delete from cp_user_role
+        <where>
+            <if test="userIds != null and !userIds.isEmpty()">
+                user_id in
+                <foreach item="id" collection="userIds"
+                         open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="userIds == null or userIds.isEmpty()">
+                1 = 0  <!-- 空列表时添加永假条件 -->
+            </if>
+        </where>
+    </delete>
+
+    <select id="selectRoleByUserId" resultType="java.lang.String">
+        select role_name
+        from cp_role r
+                 join cp_user_role ur on r.id = ur.role_id
+        where ur.user_id = #{userId}
+    </select>
+
+
+    <select id="selectRoleIdsByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        SELECT role_id
+        FROM cp_user_role
+        WHERE user_id = #{id}
+    </select>
+
+
+</mapper>
