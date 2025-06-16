@@ -1,7 +1,8 @@
 package com.cgr.controller;
 
 import com.cgr.ResponseModel;
-import com.cgr.aop.annotation.hasRole;
+import com.cgr.aop.annotation.DelRedisMenu;
+import com.cgr.aop.annotation.HasRole;
 import com.cgr.constant.Role;
 import com.cgr.entity.CPUser;
 import com.cgr.service.AdminService;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
-@hasRole(Role.ROLE_ADMIN)
+@HasRole(Role.ROLE_ADMIN)
 public class AdminController {
 
     @Autowired
@@ -26,6 +27,7 @@ public class AdminController {
      * @return
      */
     @PutMapping("/liftToAdmin")
+    @DelRedisMenu
     public ResponseModel liftToAdmin(@RequestBody List<Long> ids) {
         if(CollectionUtils.isEmpty(ids)){
             return ResponseModel.error("请选择用户");
@@ -35,6 +37,7 @@ public class AdminController {
     }
 
     @PutMapping("/downToUser")
+    @DelRedisMenu
     public ResponseModel downToUser(@RequestBody List<Long> ids) {
         if(CollectionUtils.isEmpty(ids)){
             return ResponseModel.error("请选择用户");

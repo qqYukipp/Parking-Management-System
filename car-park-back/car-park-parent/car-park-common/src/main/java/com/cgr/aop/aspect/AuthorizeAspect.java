@@ -1,6 +1,6 @@
 package com.cgr.aop.aspect;
 
-import com.cgr.aop.annotation.hasRole;
+import com.cgr.aop.annotation.HasRole;
 import com.cgr.entity.LoginUser;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,7 +22,7 @@ public class AuthorizeAspect {
     /**
      * 定义切入点：方法上有@hasRole注解 或 类上有@hasRole注解
      */
-    @Pointcut("@annotation(com.cgr.aop.annotation.hasRole) || @within(com.cgr.aop.annotation.hasRole)")
+    @Pointcut("@annotation(com.cgr.aop.annotation.HasRole) || @within(com.cgr.aop.annotation.HasRole)")
     public void hasRolePointCut() {}
 
     /**
@@ -37,7 +37,7 @@ public class AuthorizeAspect {
                 throw new AccessDeniedException("用户未登录");
             }
 
-            // 获取LoginUser对象（假设您的UserDetails实现类是LoginUser）
+            // 获取LoginUser对象
             Object principal = authentication.getPrincipal();
             if (!(principal instanceof LoginUser)) {
                 throw new AccessDeniedException("无效的用户信息");
@@ -74,13 +74,13 @@ public class AuthorizeAspect {
         Method method = signature.getMethod();
 
         // 先检查方法上的注解
-        hasRole methodAnnotation = method.getAnnotation(hasRole.class);
+        HasRole methodAnnotation = method.getAnnotation(HasRole.class);
         if (methodAnnotation != null) {
             return methodAnnotation.value();
         }
 
         // 再检查类上的注解
-        hasRole classAnnotation = joinPoint.getTarget().getClass().getAnnotation(hasRole.class);
+        HasRole classAnnotation = joinPoint.getTarget().getClass().getAnnotation(HasRole.class);
         if (classAnnotation != null) {
             return classAnnotation.value();
         }
