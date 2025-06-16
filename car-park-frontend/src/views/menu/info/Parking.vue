@@ -85,7 +85,7 @@
 
       <el-form :model="data.bindForm" :rules="data.bindRules" ref="bindFormRef" label-width="80px">
         <el-form-item label="车牌号" prop="name">
-          <el-input v-model="data.bindForm.name" placeholder="请输入车牌号" />
+          <el-input v-model="data.bindForm.name" placeholder="请输入车牌号 例如 粤X 12345" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -110,14 +110,14 @@ const baseUrl = import.meta.env.VITE_BASE_URL
 // 车牌校验正则：支持传统蓝牌、黄牌和新能源车牌
 // 传统蓝黄牌：省份简称 + 大写字母 + 5 位字母或数字
 // 新能源车牌：省份简称 + 大写字母 + D/F + 5 位字母或数字
-const platePattern = /^[\u4e00-\u9fa5][A-Z](?:[A-Z0-9]{5}|[DF][A-HJ-NP-Z0-9]{5})$/;
+const platePattern = /^[\u4e00-\u9fa5][A-Z]\s(?:[A-Z0-9]{5}|[DF][A-HJ-NP-Z0-9]{5})$/;
 
 function validatePlate(rule, value, callback) {
   if (!value) {
     return callback(new Error('请输入车牌号'));
   }
   if (!platePattern.test(value)) {
-    return callback(new Error('请输入正确的车牌号'));
+    return callback(new Error('请输入正确的车牌号,确保省份与号码之间有一个空格'));
   }
   callback();
 }

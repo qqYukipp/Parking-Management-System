@@ -53,4 +53,10 @@
             </if>
         </where>
     </select>
+
+
+    <select id="countByUsername" resultType="int">
+        SELECT COUNT(1) FROM cp_user WHERE username = #{username}
+    </select>
+
 </mapper>

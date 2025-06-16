@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseModel handleDuplicateKeyException(DuplicateKeyException ex) {
-        ResponseModel<?> body = ResponseModel.error("用户名已存在");
+        ResponseModel<?> body = ResponseModel.error(ex.getMessage());
         return body;
     }
 

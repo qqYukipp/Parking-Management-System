@@ -15,6 +15,7 @@ import com.cgr.utils.SecurityUtil;
 import com.cgr.vo.LoginUserVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -75,6 +76,10 @@ public class WebServiceImpl implements WebService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResponseModel addUser(LoginBody loginBody) {
+        int count = userMapper.countByUsername(loginBody.getUsername());
+        if (count > 0) {
+            throw new DuplicateKeyException("用户名已存在");
+        }
         loginBody.setPassword(new BCryptPasswordEncoder().encode(loginBody.getPassword()));
         CPUser user = new CPUser();
         BeanUtils.copyProperties(loginBody, user);
