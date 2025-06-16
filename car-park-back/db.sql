@@ -1,3 +1,18 @@
+create table charge
+(
+    id           bigint auto_increment
+        primary key,
+    first_hour   double(10, 2) default 0.00 null comment '首小时费用',
+    per_hour     double(10, 2) default 0.00 null comment '每小时费用',
+    daily_cap    double(10, 2) default 0.00 null comment '单日封顶费用',
+    monthly_fee  double(10, 2) default 0.00 null comment '月租费用，仅用于月租车',
+    free_minutes int           default 30   null comment '免费时长，单位分钟'
+)
+    comment '车辆收费规则表';
+
+INSERT INTO temp.charge (id, first_hour, per_hour, daily_cap, monthly_fee, free_minutes) VALUES (1, 10, 5, 50, 600, 30);
+
+
 create table cp_menu
 (
     id         bigint auto_increment comment '主键ID'
@@ -74,6 +89,7 @@ INSERT INTO temp.cp_role (id, role_name, description, created_at, updated_at, is
 INSERT INTO temp.cp_role (id, role_name, description, created_at, updated_at, is_deleted) VALUES (2, 'MANAGER', '停车场管理员', '2025-06-06 16:32:12', '2025-06-06 16:32:12', 0);
 INSERT INTO temp.cp_role (id, role_name, description, created_at, updated_at, is_deleted) VALUES (3, 'USER', '普通用户', '2025-06-06 16:32:12', '2025-06-06 16:32:12', 0);
 
+
 create table cp_role_menu
 (
     role_id     bigint                             not null comment '角色ID',
@@ -102,6 +118,7 @@ INSERT INTO temp.cp_role_menu (role_id, menu_id, assigned_at) VALUES (3, 3, '202
 INSERT INTO temp.cp_role_menu (role_id, menu_id, assigned_at) VALUES (3, 4, '2025-06-09 19:02:42');
 INSERT INTO temp.cp_role_menu (role_id, menu_id, assigned_at) VALUES (3, 5, '2025-06-09 19:02:43');
 INSERT INTO temp.cp_role_menu (role_id, menu_id, assigned_at) VALUES (3, 6, '2025-06-09 19:02:41');
+INSERT INTO temp.cp_role_menu (role_id, menu_id, assigned_at) VALUES (3, 8, '2025-06-16 22:03:15');
 INSERT INTO temp.cp_role_menu (role_id, menu_id, assigned_at) VALUES (3, 14, '2025-06-09 19:02:43');
 INSERT INTO temp.cp_role_menu (role_id, menu_id, assigned_at) VALUES (3, 15, '2025-06-09 19:02:41');
 
@@ -129,7 +146,6 @@ INSERT INTO temp.cp_role_permission (role_id, perm_id, assigned_at) VALUES (1, 5
 INSERT INTO temp.cp_role_permission (role_id, perm_id, assigned_at) VALUES (1, 6, '2025-05-17 23:28:52');
 INSERT INTO temp.cp_role_permission (role_id, perm_id, assigned_at) VALUES (1, 7, '2025-05-17 23:28:52');
 INSERT INTO temp.cp_role_permission (role_id, perm_id, assigned_at) VALUES (1, 8, '2025-05-17 23:28:52');
-
 
 
 create table cp_user
@@ -161,18 +177,12 @@ create index idx_phone
 create index idx_username
     on cp_user (username);
 
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (1, 'wdg', '$2a$10$OYGS4WPrAAKRtVUg0Gk1jOR2tDnsVCsAQnqT/fbajIipW1A1TF/.q', '系统管理1', null, 'admin@example.com', '15813699127', null, '2025-06-06 16:32:12', '2025-06-11 17:41:18', 0, 200);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (2, 'wdg411', '$2a$10$0cqoPCCrqsNVj9yzdI/aP.TxEm.airSwH1uDRqAw99.ftZS9ZtIom', 'wdg', null, 'hh@qq.com', '18124811625', '1', '2025-06-08 18:37:30', '2025-06-08 18:37:30', 0, 0);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (7, 'wdg412', '$2a$10$MQLV31yGG8Z1blRTiayDJulCbIhroeLrLQ7sOGmcOQgUsCqfJIOda', 'wdg', null, 'hh@qq.com', '18124811625', '1', '2025-06-08 18:42:44', '2025-06-08 18:42:44', 0, 0);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (9, 'wdg41152', '$2a$10$EXfqTjTiRslhfuPp1KzPh.pUDs/f/nZDy9AxD63kv0p.CcZD/2MQm', 'wdg', null, 'hh@qq.com', '18124811625', '1', '2025-06-08 18:50:37', '2025-06-08 18:50:37', 0, 0);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (10, 'wdg413', '$2a$10$E7KeLgFXz3GWu9sK1t4HFeqP7G/O8Av17XyvSkWajGMHtE3vE6mLq', 'wdg11', null, 'hh@qq.com', '18124811628', '1', '2025-06-08 18:50:49', '2025-06-11 17:52:52', 0, 800);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (11, 'wdg23', '$2a$10$SSGEgMU1LJPSDOHWBZIorecGsZoSLPHZi46.TkebVxipeIXDxiiJe', 'wdg', null, 'hh@qq.com', '18124811625', '1', '2025-06-08 18:54:34', '2025-06-08 18:54:34', 0, 0);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (12, 'fukk', '$2a$10$1GbAJRJ08AOR0pxz3aCyu.NlcIxKMr4Ju7etCj9JsZP3s8S9CGXnq', null, null, 'ax@qs.com', null, null, '2025-06-09 00:06:25', '2025-06-09 00:06:25', 0, 0);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (13, 'wdg111', '$2a$10$Fype1h1EsG.Rs4ddvkexAezFQ3pJ02hptgCeDj7tGhpGyI3fx/woK', null, null, '111@qq.com', null, null, '2025-06-09 15:49:07', '2025-06-09 15:49:07', 0, 0);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (14, 'wdwd', '$2a$10$SxaL930.XOdyp30Dm/LySu8THRLjUS.J4zT4ruopJQuhIsHE6QJqy', null, null, 're.life@icloud.com', null, null, '2025-06-09 15:51:26', '2025-06-09 15:51:26', 0, 0);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (15, 'www', '$2a$10$a8vP.ZN63scs8KV6zTZZDe72vMhMgEetlBwSTSjrPQrg89S2dGZBm', null, null, 're.life@icloud.com', null, null, '2025-06-09 15:52:06', '2025-06-09 15:52:06', 0, 0);
-INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (16, 'mrb', '$2a$10$hrg9Fg.WSVGUBSk5Ds0g0.JYHxaWybEeQnBo1hVQhOkLrz7fWrsge', null, null, 're.life@icloud.com', null, null, '2025-06-10 14:27:05', '2025-06-10 14:27:05', 0, 0);
-
+INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (1, 'wdg', '$2a$10$G66C3GH0EGiuyuVBNotTleoal962K6xZ96m.VeM3I8I/he4lESaJm', '系统管理1', 'https://wdg.oss-cn-beijing.aliyuncs.com/2025/06/cb230c6e-1a21-462d-8dce-fd5457df1443.jpg', 'admin@example.com', '15813699127', null, '2025-06-06 16:32:12', '2025-06-13 15:49:36', 0, 200);
+INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (10, 'wdg413', '$2a$10$E7KeLgFXz3GWu9sK1t4HFeqP7G/O8Av17XyvSkWajGMHtE3vE6mLq', 'wdg11', 'https://wdg.oss-cn-beijing.aliyuncs.com/2025/06/0229cfdc-7055-4e1f-bd23-e0653d21af90.jpg', 'hh@qq.com', '18124811621', '1', '2025-06-08 18:50:49', '2025-06-17 01:09:06', 0, 0);
+INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (11, 'wdg2', '$2a$10$SSGEgMU1LJPSDOHWBZIorecGsZoSLPHZi46.TkebVxipeIXDxiiJe', 'wdg', null, 'hh@qq.com', '18124811625', '1', '2025-06-08 18:54:34', '2025-06-14 15:25:28', 0, 0);
+INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (16, 'mrb', '$2a$10$hrg9Fg.WSVGUBSk5Ds0g0.JYHxaWybEeQnBo1hVQhOkLrz7fWrsge', 'test', null, 're.life@icloud.com', '5435345', null, '2025-06-10 14:27:05', '2025-06-13 14:26:45', 0, 0);
+INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (56, 'test', '$2a$10$TLMaUzNztFhAleDbTZTj.Oe.ctgUIUVPJXvciuMpPi8/rAEo8B75C', null, null, 're.life@icloud.com', null, null, '2025-06-16 14:49:35', '2025-06-16 14:49:35', 0, 0);
+INSERT INTO temp.cp_user (id, username, password, nick_name, avatar, email, phone, sex, created_at, updated_at, is_deleted, account) VALUES (57, 'totest', '$2a$10$j/Wnd1oo3PX0yNdeXts9WOleF1UcvEaIbcCaBPphuPTh1oAv1Tyru', null, null, 'ax@qs.com', null, null, '2025-06-16 14:51:21', '2025-06-16 14:51:21', 0, 0);
 
 
 create table cp_user_role
@@ -191,16 +201,11 @@ create index idx_user_id
     on cp_user_role (user_id);
 
 INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (1, 1, '2025-06-07 16:19:06');
-INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (2, 3, '2025-06-08 18:37:30');
-INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (7, 3, '2025-06-08 18:42:48');
-INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (9, 3, '2025-06-08 18:50:37');
-INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (10, 3, '2025-06-08 18:50:49');
+INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (10, 3, '2025-06-13 16:45:44');
 INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (11, 3, '2025-06-08 18:54:34');
-INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (12, 3, '2025-06-09 00:06:25');
-INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (13, 3, '2025-06-09 15:49:07');
-INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (14, 3, '2025-06-09 15:51:26');
-INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (15, 3, '2025-06-09 15:52:06');
 INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (16, 3, '2025-06-10 14:27:05');
+INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (56, 3, '2025-06-16 14:49:35');
+INSERT INTO temp.cp_user_role (user_id, role_id, assigned_at) VALUES (57, 3, '2025-06-16 14:51:21');
 
 
 create table location
@@ -215,10 +220,8 @@ create table location
                          row_format = DYNAMIC;
 
 INSERT INTO temp.location (id, name, total, num) VALUES (1, 'A区', 5, 5);
-INSERT INTO temp.location (id, name, total, num) VALUES (2, 'B区', 8, 7);
+INSERT INTO temp.location (id, name, total, num) VALUES (2, 'B区', 8, 8);
 INSERT INTO temp.location (id, name, total, num) VALUES (4, 'C区', 5, 5);
-
-
 
 create table notice
 (
@@ -252,7 +255,11 @@ create table parking
                        row_format = DYNAMIC;
 
 INSERT INTO temp.parking (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, status) VALUES (7, 1, '3', 1, 1, '2025-02-14 08:00:00', '2025-02-14 11:00:00', '已出场');
-INSERT INTO temp.parking (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, status) VALUES (8, 2, '2', 2, 10, '2025-02-14 12:00:00', null, '已入场');
+INSERT INTO temp.parking (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, status) VALUES (9, 10, '4', 1, 1, '2025-06-11 14:34:04', '2025-06-11 14:35:34', '已出场');
+INSERT INTO temp.parking (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, status) VALUES (10, 10, '4', 4, 19, '2025-06-11 15:49:31', '2025-06-13 15:26:41', '已出场');
+INSERT INTO temp.parking (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, status) VALUES (11, 10, '4', 2, 8, '2025-06-15 00:00:00', '2025-06-16 17:31:35', '已出场');
+INSERT INTO temp.parking (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, status) VALUES (12, 57, '9', 1, 6, '2025-06-16 17:34:41', '2025-06-16 17:40:56', '已出场');
+INSERT INTO temp.parking (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, status) VALUES (13, 16, '10', 2, 13, '2025-06-16 20:12:02', '2025-06-16 20:12:21', '已出场');
 
 
 create table parking_lot
@@ -273,7 +280,7 @@ INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (6, 'A004', 
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (7, 'A005', 1, '空闲');
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (8, 'B001', 2, '空闲');
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (9, 'B002', 2, '空闲');
-INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (10, 'B003', 2, '占用');
+INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (10, 'B003', 2, '空闲');
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (11, 'B004', 2, '空闲');
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (12, 'B005', 2, '空闲');
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (13, 'B006', 2, '空闲');
@@ -284,7 +291,6 @@ INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (17, 'C002',
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (18, 'C003', 4, '空闲');
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (19, 'C004', 4, '空闲');
 INSERT INTO temp.parking_lot (id, name, location_id, status) VALUES (20, 'C005', 4, '空闲');
-
 
 
 create table pay
@@ -305,18 +311,28 @@ create table pay
                        row_format = DYNAMIC;
 
 INSERT INTO temp.pay (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, minutes, price, status) VALUES (7, 1, '3', 1, 1, '2025-02-14 08:00:00', '2025-02-14 11:00:00', 180, 18, '已缴费');
+INSERT INTO temp.pay (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, minutes, price, status) VALUES (9, 10, '4', 1, 1, '2025-06-11 14:34:04', '2025-06-11 14:35:34', 1, 0.1, '已缴费');
+INSERT INTO temp.pay (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, minutes, price, status) VALUES (10, 10, '4', 4, 19, '2025-06-11 15:49:31', '2025-06-13 15:26:41', 2857, 285.7, '已缴费');
+INSERT INTO temp.pay (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, minutes, price, status) VALUES (11, 10, '4', 2, 8, '2025-06-15 00:00:00', '2025-06-16 17:31:35', 2491, 249.1, '未缴费');
+INSERT INTO temp.pay (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, minutes, price, status) VALUES (12, 57, '9', 1, 6, '2025-06-16 17:34:41', '2025-06-16 17:40:56', 6, 0.6, '未缴费');
+INSERT INTO temp.pay (id, user_id, vehicle_id, location_id, parking_lot_id, start_time, end_time, minutes, price, status) VALUES (13, 16, '10', 2, 13, '2025-06-16 20:12:02', '2025-06-16 20:12:21', 0, 0, '未缴费');
 
 
 create table vehicle
 (
-    id      int auto_increment comment '主键ID'
+    id                 int auto_increment comment '主键ID'
         primary key,
-    name    varchar(255) null comment '车牌号',
-    user_id int          null comment '用户ID'
+    name               varchar(255)  null comment '车牌号',
+    user_id            int           null comment '用户ID',
+    type               int default 3 null comment '1:内部车,2:月租车,3:临时车,4:黑名单',
+    monthly_start_time datetime      null comment '月卡起始时间',
+    monthly_end_time   datetime      null comment '月卡结束时间'
 )
     comment '车辆信息表' collate = utf8mb4_unicode_ci
                          row_format = DYNAMIC;
 
-INSERT INTO temp.vehicle (id, name, user_id) VALUES (1, '皖A N999B', 1);
-INSERT INTO temp.vehicle (id, name, user_id) VALUES (2, '皖A 888NB', 2);
-INSERT INTO temp.vehicle (id, name, user_id) VALUES (3, '皖A 666NB', 1);
+INSERT INTO temp.vehicle (id, name, user_id, type, monthly_start_time, monthly_end_time) VALUES (1, '皖A N999B', 1, 1, null, null);
+INSERT INTO temp.vehicle (id, name, user_id, type, monthly_start_time, monthly_end_time) VALUES (3, '皖A 666NB', 1, 1, null, null);
+INSERT INTO temp.vehicle (id, name, user_id, type, monthly_start_time, monthly_end_time) VALUES (4, '粤X 12345', 10, 2, '2025-05-21 18:47:24', '2025-06-21 18:47:33');
+INSERT INTO temp.vehicle (id, name, user_id, type, monthly_start_time, monthly_end_time) VALUES (9, '粤Y 12345', 57, 2, '2025-06-16 19:36:38', '2025-07-16 19:36:38');
+INSERT INTO temp.vehicle (id, name, user_id, type, monthly_start_time, monthly_end_time) VALUES (10, '粤Y 12344', 16, 2, null, null);
