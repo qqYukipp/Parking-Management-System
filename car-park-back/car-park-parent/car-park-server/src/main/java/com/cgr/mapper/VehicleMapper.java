@@ -41,4 +41,6 @@ public interface VehicleMapper {
     void deleteByUserId(Long id);
 
     void deleteBatch(@Param("userIds") List<Long> userIds);
+
+    Vehicle selectByName(String name);
 }

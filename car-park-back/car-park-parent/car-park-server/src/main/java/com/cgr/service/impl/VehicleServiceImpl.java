@@ -6,10 +6,12 @@ import com.cgr.entity.Vehicle;
 import com.cgr.mapper.VehicleMapper;
 import com.cgr.service.VehicleService;
 import com.cgr.utils.SecurityUtil;
-import jakarta.annotation.Resource;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import jakarta.annotation.Resource;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -22,6 +24,11 @@ public class VehicleServiceImpl implements VehicleService {
      * 新增
      */
     public void add(Vehicle vehicle) {
+        //查询数据库中是否已经存在
+        Vehicle temp = vehicleMapper.selectByName(vehicle.getName());
+        if(!ObjectUtils.isEmpty(temp)){
+            throw new DuplicateKeyException("车辆已存在");
+        }
         vehicleMapper.insert(vehicle);
     }
 

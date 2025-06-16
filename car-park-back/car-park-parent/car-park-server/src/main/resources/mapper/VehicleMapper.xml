@@ -20,6 +20,10 @@
         select * from `vehicle`
         where id = #{id}
     </select>
+    <select id="selectByName" resultType="com.cgr.entity.Vehicle">
+        select * from `vehicle`
+        where name = #{name}
+    </select>
 
     <delete id="deleteById">
         delete from `vehicle`
