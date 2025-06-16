@@ -7,9 +7,12 @@
       <el-input v-model="data.vehicleName" placeholder="请输入车牌号查询" style="width: 240px"></el-input>
       <el-button type="info" plain style="margin-left: 10px" @click="load">查询</el-button>
       <el-button type="warning" plain style="margin-left: 10px" @click="reset">重置</el-button>
+      <el-button type="warning" plain style="margin-left: 10px"
+                 v-if="data.user.roleList.includes('USER')"
+                 @click="openBindDialog">绑定我的车辆</el-button>
     </div>
 
-    <div class="card" style="margin-bottom: 5px" v-if="data.user.roleList.includes('ADMIN') ">
+    <div class="card" style="margin-bottom: 5px" >
       <el-button type="primary" plain @click="handleAdd">车辆入场</el-button>
     </div>
 
@@ -71,6 +74,29 @@
       </template>
     </el-dialog>
 
+
+    <el-dialog
+        title="绑定车辆"
+        v-model="data.bindDialogVisible"
+        width="30%"
+        :close-on-click-modal="false"
+        destroy-on-close
+    >
+
+      <el-form :model="data.bindForm" :rules="data.bindRules" ref="bindFormRef" label-width="80px">
+        <el-form-item label="车牌号" prop="name">
+          <el-input v-model="data.bindForm.name" placeholder="请输入车牌号" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="data.bindDialogVisible = false">取消</el-button>
+
+          <el-button type="primary" @click="doBindVehicle">绑定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -80,12 +106,28 @@ import request from "@/utils/request.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {Delete, Edit} from "@element-plus/icons-vue";
 const baseUrl = import.meta.env.VITE_BASE_URL
+
+// 车牌校验正则：支持传统蓝牌、黄牌和新能源车牌
+// 传统蓝黄牌：省份简称 + 大写字母 + 5 位字母或数字
+// 新能源车牌：省份简称 + 大写字母 + D/F + 5 位字母或数字
+const platePattern = /^[\u4e00-\u9fa5][A-Z](?:[A-Z0-9]{5}|[DF][A-HJ-NP-Z0-9]{5})$/;
+
+function validatePlate(rule, value, callback) {
+  if (!value) {
+    return callback(new Error('请输入车牌号'));
+  }
+  if (!platePattern.test(value)) {
+    return callback(new Error('请输入正确的车牌号'));
+  }
+  callback();
+}
+
 const data = reactive({
   user: JSON.parse(localStorage.getItem('loginUser') || '{}'),
   tableData: [],
   total: 0,
-  pageNum: 1,  // 当前的页码
-  pageSize: 5,  // 每页的个数
+  pageNum: 1,
+  pageSize: 5,
   formVisible: false,
   form: {},
   userName: null,
@@ -93,7 +135,11 @@ const data = reactive({
   userList: [],
   vehicleList: [],
   locationList: [],
-  parkingList: [],
+  parkingLotList: [], // 修复：应该是parkingLotList而不是parkingList
+  bindDialogVisible: false,
+  bindForm: {
+    name: ''
+  },
   flag: true,
   rules: {
     userId: [
@@ -111,13 +157,22 @@ const data = reactive({
     startTime: [
       { required: true, message: '请选择入场时间', trigger: 'blur' },
     ],
+    endTime: [
+      { required: true, message: '请选择出场时间', trigger: 'blur' },
+    ]
+  },
+
+  bindRules: {
+    name: [
+      { validator: validatePlate, trigger: 'blur' }
+    ]
   }
 })
 
 const formRef = ref()
+const bindFormRef = ref() // 确保有这个ref
 
 const loadUser = () => {
-  //管理员查所有
   request.get('/user/selectAll').then(res => {
     if (res.code === 200) {
       data.userList = res.data
@@ -127,6 +182,7 @@ const loadUser = () => {
   })
 }
 loadUser()
+
 const initVehicle = (userId) => {
   request.get('/vehicle/selectAll', {
     params: {
@@ -140,6 +196,7 @@ const initVehicle = (userId) => {
     }
   })
 }
+
 const loadLocation = () => {
   request.get('/location/selectAll').then(res => {
     if (res.code === 200) {
@@ -150,6 +207,7 @@ const loadLocation = () => {
   })
 }
 loadLocation()
+
 const initParkingLot = (locationId) => {
   request.get('/parkingLot/selectAll', {
     params: {
@@ -164,7 +222,7 @@ const initParkingLot = (locationId) => {
     }
   })
 }
-// 加载表格数据
+
 const load = () => {
   request.get('/parking/selectPage', {
     params: {
@@ -179,21 +237,44 @@ const load = () => {
   })
 }
 
-// 打开新增弹窗
 const handleAdd = () => {
   data.form = {}
   data.flag = true
   data.formVisible = true
 }
 
-// 打开编辑弹窗
 const handleEdit = (row) => {
   data.form = JSON.parse(JSON.stringify(row))
   data.flag = false
   data.formVisible = true
 }
 
-// 新增
+
+const openBindDialog = () => {
+  data.bindForm = { name: '' }
+  data.bindDialogVisible = true
+}
+
+
+const doBindVehicle = () => {
+  bindFormRef.value.validate(valid => {
+    if (!valid) return
+
+    request.post('/vehicle/add', {
+      name: data.bindForm.name,
+      userId: data.user.id
+    }).then(res => {
+      if (res.code === 200) {
+        ElMessage.success("绑定成功")
+        data.bindDialogVisible = false
+        load()
+      } else {
+        ElMessage.error(res.msg || "绑定失败")
+      }
+    })
+  })
+}
+
 const add = () => {
   request.post('/parking/add', data.form).then(res => {
     if (res.code === 200) {
@@ -206,7 +287,6 @@ const add = () => {
   })
 }
 
-// 更新
 const update = () => {
   request.put('/parking/update', data.form).then(res => {
     if (res.code === 200) {
@@ -234,5 +314,4 @@ const reset = () => {
 }
 
 load()
-
 </script>
