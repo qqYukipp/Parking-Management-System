@@ -1,0 +1,77 @@
+spring:
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      #password:1234
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: Ov23liO7GdJYZfNR8g39
+            clientSecret: 285a1a3459377785123c1d2b7fca00d934f751bb
+            authorizationGrantType: authorization_code
+            redirectUri: http://localhost:8080/login/oauth2/code/github
+          google:
+            clientId: 887175735200-aoocqp4hbqj96qjdast9l2u79csfoen0.apps.googleusercontent.com
+            clientSecret: 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
+          gitee:
+            # 在 gitee 上注册后分配的 应用 id
+            clientId: fbdd8aa9cd8025a4568ee0b62f0627e0de47eaac22c5510cbd871f8d31ef343e
+            # 在 gitee 上注册后分配的 应用密钥
+            clientSecret: 61603f4f3ce5320a59e9878d5ad21c9775b2a50927d34d61885109f72c0db3ec
+            # 授权模式为  授权码
+            authorizationGrantType: authorization_code
+            # 回调地址 (必须与gitee站点配置的一致)
+            redirectUri: http://localhost:8080/login/oauth2/code/gitee
+            #  授权范围
+            scope:
+              - user_info
+              - emails
+            # 应用的 provider名字
+            provider: gitee
+        provider:
+          gitee:
+            # 在 gitee 上进行认证的地址
+            authorizationUri: https://gitee.com/oauth/authorize
+            # 获取 access_token 的地址
+            tokenUri: https://gitee.com/oauth/token
+            # 获取用户信息的地址
+            userInfoUri: https://gitee.com/api/v5/user
+            # 获取用户 "XXX" 属性的值
+            userNameAttribute: login
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/temp?serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 1234
+    type: com.alibaba.druid.pool.DruidDataSource
+
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security=DEBUG:
+
+
+aliyun:
+  oss:
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    bucketName: wdg
+    region: cn-beijing
+
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
