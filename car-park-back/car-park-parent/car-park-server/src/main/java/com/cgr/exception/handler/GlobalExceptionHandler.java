@@ -83,12 +83,10 @@ public class GlobalExceptionHandler {
      * 返回 500 Internal Server Error
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseModel<?>> handleOtherExceptions(Exception ex) {
+    public ResponseModel handleOtherExceptions(Exception ex) {
         ex.printStackTrace();
-        ResponseModel<?> body = ResponseModel.error("服务器内部错误：" + ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(body);
+        ResponseModel<?> body = ResponseModel.error( ex.getMessage());
+        return body;
     }
 
 

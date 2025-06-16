@@ -1,5 +1,6 @@
 package com.cgr.utils;
 
+import com.cgr.entity.Charge;
 import com.cgr.vo.LoginUserVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +9,17 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class RedisUtil {
 
     public static final Long USER_TOKEN_TTL = 10L;
-    private static final String MENU_TREE_KEY = "menu_tree:";
+    public static final String MENU_TREE_KEY = "menu_tree:";
+    public static final String CHARGE_CONFIG = "charge:config";
+
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -64,4 +69,50 @@ public class RedisUtil {
     public void evictMenuTree(Long userId) {
         stringRedisTemplate.delete(MENU_TREE_KEY + userId);
     }
+
+
+    public void setCharge(Charge charge) {
+        Map<String, Object> chargeMap = new HashMap<>();
+        chargeMap.put("firstHour", charge.getFirstHour());
+        chargeMap.put("perHour", charge.getPerHour());
+        chargeMap.put("dailyCap", charge.getDailyCap());
+        chargeMap.put("monthlyFee", charge.getMonthlyFee());
+        chargeMap.put("freeMinutes", charge.getFreeMinutes());
+
+        redisTemplate.opsForHash().putAll(CHARGE_CONFIG, chargeMap);
+    }
+
+    public Charge getCharge() {
+        Map<Object, Object> chargeMap = redisTemplate.opsForHash().entries(CHARGE_CONFIG);
+        if (chargeMap == null || chargeMap.isEmpty()) {
+            return null; // 或者你可以抛出异常，说明 Redis 中没有缓存
+        }
+
+        Charge charge = new Charge();
+
+        Object firstHour = chargeMap.get("firstHour");
+        Object perHour = chargeMap.get("perHour");
+        Object dailyCap = chargeMap.get("dailyCap");
+        Object monthlyFee = chargeMap.get("monthlyFee");
+        Object freeMinutes = chargeMap.get("freeMinutes");
+
+        if (firstHour != null) {
+            charge.setFirstHour(Double.valueOf(firstHour.toString()));
+        }
+        if (perHour != null) {
+            charge.setPerHour(Double.valueOf(perHour.toString()));
+        }
+        if (dailyCap != null) {
+            charge.setDailyCap(Double.valueOf(dailyCap.toString()));
+        }
+        if (monthlyFee != null) {
+            charge.setMonthlyFee(Double.valueOf(monthlyFee.toString()));
+        }
+        if (freeMinutes != null) {
+            charge.setFreeMinutes(Integer.valueOf(freeMinutes.toString()));
+        }
+
+        return charge;
+    }
+
 }

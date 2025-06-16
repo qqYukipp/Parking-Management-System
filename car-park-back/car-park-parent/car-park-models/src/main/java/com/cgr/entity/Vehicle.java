@@ -1,6 +1,8 @@
 package com.cgr.entity;
 
 
+import java.time.LocalDateTime;
+
 /**
  * 车辆信息
 */
@@ -12,6 +14,35 @@ public class Vehicle {
     /** 所属用户Id */
     private Long userId;
     private String userName;
+
+
+    //新增字段
+    /**
+     * 1 内部车
+     * 2 月租车
+     * 3 临时车
+     * 4 黑名单
+     */
+    private int type;
+    //月卡时间
+    LocalDateTime startTime;
+    LocalDateTime endTime;
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 
     public Integer getId() {
         return id;
@@ -43,6 +74,14 @@ public class Vehicle {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
 }

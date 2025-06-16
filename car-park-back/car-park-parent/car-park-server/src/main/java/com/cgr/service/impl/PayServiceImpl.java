@@ -7,6 +7,7 @@ import com.cgr.entity.Pay;
 import com.cgr.exception.CustomException;
 import com.cgr.mapper.PayMapper;
 import com.cgr.mapper.UserMapper;
+import com.cgr.mapper.VehicleMapper;
 import com.cgr.service.PayService;
 import com.cgr.utils.SecurityUtil;
 import com.github.pagehelper.PageHelper;
@@ -23,6 +24,8 @@ public class PayServiceImpl implements PayService {
     private PayMapper payMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private VehicleMapper vehicleMapper;
 
     /**
      * 新增
@@ -48,7 +51,7 @@ public class PayServiceImpl implements PayService {
     }
 
     /**
-     * 修改
+     * 缴费
      */
     public void updateById(Pay pay) {
         // 查询余额
@@ -62,7 +65,9 @@ public class PayServiceImpl implements PayService {
 
         pay.setStatus("已缴费");
         payMapper.updateById(pay);
+
     }
+
 
     /**
      * 根据ID查询
@@ -83,15 +88,16 @@ public class PayServiceImpl implements PayService {
      */
     public PageInfo<Pay> selectPage(Pay pay, Integer pageNum, Integer pageSize) {
         //如果不是管理员，设置id，查询当前用户相关信息
-        LoginUser  currentUser = SecurityUtil.getLoginUser();
+        LoginUser currentUser = SecurityUtil.getLoginUser();
         List<String> roleList = currentUser.getRoleList();
         if (!roleList.contains(Role.ROLE_ADMIN)) {
             Long userId = currentUser.getUser().getId();
-            if (userId != null && userId >= Integer.MIN_VALUE && userId <= Integer.MAX_VALUE) {
+            /*if (userId != null && userId >= Integer.MIN_VALUE && userId <= Integer.MAX_VALUE) {
                 pay.setId(userId.intValue());
             } else {
                 throw new IllegalArgumentException("userId 超出 Integer 范围！");
-            }
+            }*/
+            pay.setUserId(userId);
         }
         PageHelper.startPage(pageNum, pageSize);
         List<Pay> list = this.selectAll(pay);

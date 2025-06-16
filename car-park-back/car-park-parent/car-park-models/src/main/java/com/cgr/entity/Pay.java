@@ -10,7 +10,7 @@ public class Pay {
     /** 用户Id */
     private Long userId;
     /** 车辆Id */
-    private String vehicleId;
+    private Long vehicleId;
     /** 区域Id */
     private Integer locationId;
     /** 车位Id */
@@ -51,11 +51,11 @@ public class Pay {
         this.userName = userName;
     }
 
-    public String getVehicleId() {
+    public Long getVehicleId() {
         return vehicleId;
     }
 
-    public void setVehicleId(String vehicleId) {
+    public void setVehicleId(Long vehicleId) {
         this.vehicleId = vehicleId;
     }
 

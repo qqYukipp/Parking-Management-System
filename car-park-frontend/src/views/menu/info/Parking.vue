@@ -7,13 +7,12 @@
       <el-input v-model="data.vehicleName" placeholder="请输入车牌号查询" style="width: 240px"></el-input>
       <el-button type="info" plain style="margin-left: 10px" @click="load">查询</el-button>
       <el-button type="warning" plain style="margin-left: 10px" @click="reset">重置</el-button>
-      <el-button type="warning" plain style="margin-left: 10px"
-                 v-if="data.user.roleList.includes('USER')"
-                 @click="openBindDialog">绑定我的车辆</el-button>
     </div>
 
     <div class="card" style="margin-bottom: 5px" >
-      <el-button type="primary" plain @click="handleAdd">车辆入场</el-button>
+      <el-button type="primary" plain
+                 v-if="data.user.roleList.includes('ADMIN')"
+                 @click="handleAdd">车辆入场</el-button>
     </div>
 
     <div class="card" style="margin-bottom: 5px;">
@@ -25,9 +24,16 @@
         <el-table-column prop="startTime" label="入场时间"></el-table-column>
         <el-table-column prop="endTime" label="出场时间"></el-table-column>
         <el-table-column prop="status" label="状态"></el-table-column>
+
         <el-table-column label="操作" width="100" fixed="right" v-if="data.user.roleList.includes('ADMIN')">
           <template v-slot="scope">
             <el-button type="primary" @click="handleEdit(scope.row)" :disabled="scope.row.status === '已出场'">车辆出场</el-button>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="100" fixed="right" v-if="data.user.roleList.includes('USER')">
+          <template v-slot="scope">
+            <el-button type="primary" @click="handleEditUser(scope.row)" :disabled="scope.row.status === '已出场'">我要出场</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -62,9 +68,11 @@
         <el-form-item label="入场时间" prop="startTime" v-if="data.flag">
           <el-date-picker placeholder="请选择日期时间" type="datetime" format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" v-model="data.form.startTime" style="width: 100%"></el-date-picker>
         </el-form-item>
+
         <el-form-item label="出场时间" prop="endTime" v-if="!data.flag">
           <el-date-picker placeholder="请选择日期时间" type="datetime" format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" v-model="data.form.endTime" style="width: 100%"></el-date-picker>
         </el-form-item>
+
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -75,27 +83,7 @@
     </el-dialog>
 
 
-    <el-dialog
-        title="绑定车辆"
-        v-model="data.bindDialogVisible"
-        width="30%"
-        :close-on-click-modal="false"
-        destroy-on-close
-    >
 
-      <el-form :model="data.bindForm" :rules="data.bindRules" ref="bindFormRef" label-width="80px">
-        <el-form-item label="车牌号" prop="name">
-          <el-input v-model="data.bindForm.name" placeholder="请输入车牌号 例如 粤X 12345" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="data.bindDialogVisible = false">取消</el-button>
-
-          <el-button type="primary" @click="doBindVehicle">绑定</el-button>
-        </span>
-      </template>
-    </el-dialog>
 
   </div>
 </template>
@@ -107,20 +95,7 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {Delete, Edit} from "@element-plus/icons-vue";
 const baseUrl = import.meta.env.VITE_BASE_URL
 
-// 车牌校验正则：支持传统蓝牌、黄牌和新能源车牌
-// 传统蓝黄牌：省份简称 + 大写字母 + 5 位字母或数字
-// 新能源车牌：省份简称 + 大写字母 + D/F + 5 位字母或数字
-const platePattern = /^[\u4e00-\u9fa5][A-Z]\s(?:[A-Z0-9]{5}|[DF][A-HJ-NP-Z0-9]{5})$/;
 
-function validatePlate(rule, value, callback) {
-  if (!value) {
-    return callback(new Error('请输入车牌号'));
-  }
-  if (!platePattern.test(value)) {
-    return callback(new Error('请输入正确的车牌号,确保省份与号码之间有一个空格'));
-  }
-  callback();
-}
 
 const data = reactive({
   user: JSON.parse(localStorage.getItem('loginUser') || '{}'),
@@ -135,8 +110,7 @@ const data = reactive({
   userList: [],
   vehicleList: [],
   locationList: [],
-  parkingLotList: [], // 修复：应该是parkingLotList而不是parkingList
-  bindDialogVisible: false,
+  parkingLotList: [],
   bindForm: {
     name: ''
   },
@@ -161,16 +135,10 @@ const data = reactive({
       { required: true, message: '请选择出场时间', trigger: 'blur' },
     ]
   },
-
-  bindRules: {
-    name: [
-      { validator: validatePlate, trigger: 'blur' }
-    ]
-  }
 })
 
 const formRef = ref()
-const bindFormRef = ref() // 确保有这个ref
+
 
 const loadUser = () => {
   request.get('/user/selectAll').then(res => {
@@ -247,6 +215,25 @@ const handleEdit = (row) => {
   data.form = JSON.parse(JSON.stringify(row))
   data.flag = false
   data.formVisible = true
+}
+
+const handleEditUser = (row) => {
+  data.form = JSON.parse(JSON.stringify(row))
+  data.flag = false
+  data.form.endTime = getNowTime()  // 设置当前时间
+  //data.formVisible = true
+  update()
+}
+
+const getNowTime = () => {
+  const now = new Date();
+  const Y = now.getFullYear();
+  const M = String(now.getMonth() + 1).padStart(2, '0');
+  const D = String(now.getDate()).padStart(2, '0');
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  return `${Y}-${M}-${D} ${h}:${m}:${s}`;
 }
 
 

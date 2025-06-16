@@ -8,17 +8,20 @@ import java.util.List;
 public interface VehicleService {
     void add(Vehicle vehicle);
 
-    void deleteById(Integer id);
+    void deleteById(Long id);
 
-    void deleteBatch(List<Integer> ids);
+    void deleteBatch(List<Long> ids);
 
     void updateById(Vehicle vehicle);
 
-    Vehicle selectById(Integer id);
+    Vehicle selectById(Long id);
 
     List<Vehicle> selectAll(Vehicle vehicle);
 
     PageInfo<Vehicle> selectPage(Vehicle vehicle, Integer pageNum, Integer pageSize);
 
 
+    void updateTypeByIds(List<Long> ids,int carType);
+
+    void monthlyCharge(Long vehicleId);
 }

@@ -21,7 +21,7 @@ public interface VehicleMapper {
     /**
       * 删除
     */
-    int deleteById(Integer id);
+    int deleteById(Long id);
 
     /**
       * 修改
@@ -31,7 +31,7 @@ public interface VehicleMapper {
     /**
       * 根据ID查询
     */
-    Vehicle selectById(Integer id);
+    Vehicle selectById(Long id);
 
     /**
       * 查询所有
@@ -43,4 +43,12 @@ public interface VehicleMapper {
     void deleteBatch(@Param("userIds") List<Long> userIds);
 
     Vehicle selectByName(String name);
+
+    void updateTypeByIds(@Param("vehicleIds")List<Long> ids,@Param("carType") int carType);
+
+    void monthlyCharge(Long vehicleId);
+
+    int selectTypeById(Long vehicleId);
+
+    void updateTypeTempById(Long vehicleId);
 }

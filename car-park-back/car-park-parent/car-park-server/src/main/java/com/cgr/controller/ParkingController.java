@@ -82,6 +82,7 @@ public class ParkingController {
                              @RequestParam(defaultValue = "1") Integer pageNum,
                              @RequestParam(defaultValue = "10") Integer pageSize) {
         PageInfo<Parking> page = parkingService.selectPage(parking, pageNum, pageSize);
+        System.out.println(page);
         return ResponseModel.success(page);
     }
 

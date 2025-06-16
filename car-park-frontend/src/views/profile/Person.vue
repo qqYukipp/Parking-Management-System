@@ -27,7 +27,7 @@
           <el-input v-model="userData.email" />
         </el-form-item>
         <el-form-item prop="account" label="余额" v-if="userStore.userInfo.roleList.includes('USER')">
-          <span style="color: red">￥{{ userStore.userInfo.account }}</span>
+          <span style="color: red">￥{{ userData.account }}</span>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="update">保 存</el-button>
@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, watch } from 'vue'
 import request from '@/utils/request.js'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -83,8 +83,20 @@ const userData = ref({
   phone: userStore.userInfo.phone,
   email: userStore.userInfo.email,
   avatar: userStore.userInfo.avatar,
-  account:userStore.userInfo.account
+  account: userStore.userInfo.account
 })
+
+// 监听 userStore.userInfo 的变化，同步到 userData
+watch(() => userStore.userInfo, (newUserInfo) => {
+  userData.value = {
+    username: newUserInfo.username,
+    nickName: newUserInfo.nickName,
+    phone: newUserInfo.phone,
+    email: newUserInfo.email,
+    avatar: newUserInfo.avatar,
+    account: newUserInfo.account
+  }
+}, { deep: true })
 
 const formRef = ref()
 
@@ -92,6 +104,8 @@ const formRef = ref()
 const update = async () => {
   try {
     const url = '/allUser/update'
+
+    // 先更新到 userStore
     userStore.setUserInfo(userData.value)
 
     console.log(userStore.userInfo)
@@ -99,7 +113,7 @@ const update = async () => {
     const res = await request.put(url, userStore.userInfo)
     if (res.code === 200) {
       ElMessage.success('更新成功')
-      // 更新 Pinia 状态
+      // 确保本地存储也更新了
       userStore.setUser({ ...userStore.userInfo })
     } else {
       ElMessage.error(res.msg)
@@ -115,8 +129,8 @@ const loadPerson = async () => {
     const url = '/allUser/selectById/' + userStore.userInfo.id
     const res = await request.get(url)
     if (res.code === 200) {
-      // 会导致token消失
-      //userStore.setUser(res.data)
+      // 可以选择性更新一些字段，但要保持token
+      // userStore.setUser(res.data)
     } else {
       ElMessage.error(res.msg)
     }
@@ -134,22 +148,34 @@ const rechargeInit = () => {
   data.formVisible = true
 }
 
-const recharge = () => {
+const recharge = async () => {
   if (data.account <= 0) {
     ElMessage.error('请输入正确的充值金额')
     return
   }
-  // 以分为单位安全运算
-  const newAccount = parseFloat(userStore.userInfo.account) + parseFloat(data.account)
-  userStore.userInfo.account = newAccount
-  update()
-  data.formVisible = false
+
+  try {
+    // 计算新的余额
+    const newAccount = parseFloat(userData.value.account || 0) + parseFloat(data.account)
+
+    // 更新本地数据
+    userData.value.account = newAccount
+
+    // 调用更新接口
+    await update()
+
+    // 关闭弹窗
+    data.formVisible = false
+
+    ElMessage.success(`充值成功！当前余额：￥${newAccount}`)
+  } catch (error) {
+    ElMessage.error('充值失败，请重试')
+  }
 }
 
 // 上传头像成功处理
 const handleFileUpload = (res) => {
-  //userStore.userInfo.avatar = res.data
-  userData.value.avatar = res.data   // ← 同步更新到本地表单数据
+  userData.value.avatar = res.data   // 同步更新到本地表单数据
 }
 
 const uploadWithRequest = async (uploadOption) => {
@@ -163,8 +189,6 @@ const uploadWithRequest = async (uploadOption) => {
     })
     // 成功后手动调用 el-upload 的 onSuccess
     uploadOption.onSuccess(res, uploadOption.file)
-    // 更新 avatar
-    //userStore.userInfo.avatar = res.data
   } catch (err) {
     uploadOption.onError(err)
     ElMessage.error('上传失败')

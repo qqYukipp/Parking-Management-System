@@ -4,71 +4,126 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cgr.mapper.VehicleMapper">
 
-    <select id="selectAll" resultType="com.cgr.entity.Vehicle">
-        select vehicle.*, user.username as userName from vehicle
-        left join cp_user user on vehicle.user_id = user.id
+    <!-- 全局开启驼峰映射后，可以省略大部分别名 -->
+    <!-- 但为了保险，这里给关键字段加上别名映射 -->
+
+    <resultMap id="VehicleResultMap" type="com.cgr.entity.Vehicle">
+        <id property="id"            column="id"/>
+        <result property="name"      column="name"/>
+        <result property="userId"    column="user_id"/>
+        <result property="userName"  column="username"/>
+        <result property="type"      column="type"/>
+        <result property="startTime" column="monthly_start_time"/>
+        <result property="endTime"   column="monthly_end_time"/>
+        <!-- 若后续再加字段，统一在此映射 -->
+    </resultMap>
+
+    <!-- 通用查询：带分页、过滤 -->
+    <select id="selectAll" resultMap="VehicleResultMap" parameterType="map">
+        SELECT
+        v.id,
+        v.name,
+        v.user_id,
+        u.username,
+        v.type,
+        v.monthly_start_time,
+        v.monthly_end_time
+        FROM vehicle v
+        LEFT JOIN cp_user u ON v.user_id = u.id
         <where>
-            <if test="id != null"> and vehicle.id = #{id}</if>
-            <if test="name != null"> and vehicle.name like concat('%', #{name}, '%')</if>
-            <if test="userId != null"> and vehicle.user_id = #{userId}</if>
-            <if test="userName != null"> and user.name like concat('%', #{userName}, '%')</if>
+            <if test="id != null">          AND v.id = #{id}</if>
+            <if test="name != null">        AND v.name LIKE CONCAT('%',#{name},'%')</if>
+            <if test="userId != null">      AND v.user_id = #{userId}</if>
+            <if test="userName != null">    AND u.username LIKE CONCAT('%',#{userName},'%')</if>
         </where>
-        order by id desc
+        ORDER BY v.id DESC
     </select>
 
-    <select id="selectById" resultType="com.cgr.entity.Vehicle">
-        select * from `vehicle`
-        where id = #{id}
-    </select>
-    <select id="selectByName" resultType="com.cgr.entity.Vehicle">
-        select * from `vehicle`
-        where name = #{name}
+    <!-- 按主键查询，映射同上 -->
+    <select id="selectById" resultMap="VehicleResultMap" parameterType="long">
+        SELECT
+            v.id, v.name, v.user_id,
+            u.username,
+            v.type,
+            v.monthly_start_time,
+            v.monthly_end_time
+        FROM vehicle v
+                 LEFT JOIN cp_user u ON v.user_id = u.id
+        WHERE v.id = #{id}
     </select>
 
-    <delete id="deleteById">
-        delete from `vehicle`
-        where id = #{id}
+    <!-- 按名称查询 -->
+    <select id="selectByName" resultType="com.cgr.entity.Vehicle" parameterType="string">
+        SELECT * FROM vehicle WHERE name = #{name}
+    </select>
+
+    <!-- 只查询类型 -->
+    <select id="selectTypeById" resultType="java.lang.Integer" parameterType="long">
+        SELECT type FROM vehicle WHERE id = #{id}
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM vehicle WHERE id = #{id}
     </delete>
 
-
-    <delete id="deleteByUserId">
-        delete from `vehicle`
-        where user_id = #{userId}
+    <delete id="deleteByUserId" parameterType="long">
+        DELETE FROM vehicle WHERE user_id = #{userId}
     </delete>
 
-    <delete id="deleteBatch">
-        delete from `vehicle`
-        where id in
-        <foreach item="item" index="index" collection="userIds" open="(" separator="," close=")">
-            #{item}
+    <delete id="deleteBatch" parameterType="list">
+        DELETE FROM vehicle WHERE id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
         </foreach>
     </delete>
 
+    <!-- 完整插入：name, user_id, type, monthly_start_time, monthly_end_time -->
     <insert id="insert" parameterType="com.cgr.entity.Vehicle" useGeneratedKeys="true" keyProperty="id">
-        insert into `vehicle`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">id,</if>
-            <if test="name != null">name,</if>
-            <if test="userId != null">user_id,</if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">#{id},</if>
-            <if test="name != null">#{name},</if>
-            <if test="userId != null">#{userId},</if>
-        </trim>
+        INSERT INTO vehicle
+            (name, user_id, type, monthly_start_time, monthly_end_time)
+        VALUES
+            (#{name}, #{userId}, #{type}, #{startTime}, #{endTime})
     </insert>
 
+    <!-- 更新指定字段 -->
     <update id="updateById" parameterType="com.cgr.entity.Vehicle">
-        update `vehicle`
+        UPDATE vehicle
         <set>
-            <if test="name != null">
-                name = #{name},
-            </if>
-            <if test="userId != null">
-                user_id = #{userId},
-            </if>
+            <if test="name != null">             name = #{name},           </if>
+            <if test="userId != null">           user_id = #{userId},      </if>
+            <if test="type != null">             type = #{type},           </if>
+            <if test="startTime != null">        monthly_start_time = #{startTime}, </if>
+            <if test="endTime != null">          monthly_end_time   = #{endTime},   </if>
         </set>
-        where id = #{id} 
+        WHERE id = #{id}
+    </update>
+
+    <!-- 批量修改类型 -->
+    <update id="updateTypeByIds" parameterType="map">
+        UPDATE vehicle
+        SET type = #{carType}
+        WHERE id IN
+        <foreach item="id" collection="vehicleIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 购买月卡：设置为月租车，并更新起止时间 -->
+    <update id="monthlyCharge" parameterType="long">
+        UPDATE vehicle
+        SET
+            type = 2,
+            monthly_start_time = NOW(),
+            monthly_end_time   = DATE_ADD(NOW(), INTERVAL 1 MONTH)
+        WHERE id = #{vehicleId}
+    </update>
+
+    <!-- 月租到期后改为临时车 -->
+    <update id="updateTypeTempById" parameterType="long">
+        UPDATE vehicle
+        SET type = 3
+        WHERE id = #{vehicleId}
     </update>
 
 </mapper>
