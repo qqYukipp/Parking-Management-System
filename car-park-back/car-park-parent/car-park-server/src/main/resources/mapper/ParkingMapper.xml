@@ -37,6 +37,19 @@
         where id = #{id}
     </delete>
 
+    <delete id="deleteByUserId">
+        delete from `parking`
+        where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from `parking`
+        where id in
+        <foreach item="item" index="index" collection="userIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
     <insert id="insert" parameterType="com.cgr.entity.Parking" useGeneratedKeys="true" keyProperty="id">
         insert into `parking`
         <trim prefix="(" suffix=")" suffixOverrides=",">

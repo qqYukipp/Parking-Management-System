@@ -2,8 +2,7 @@ package com.cgr.service.impl;
 
 import com.cgr.constant.Role;
 import com.cgr.entity.CPUser;
-import com.cgr.mapper.RoleMapper;
-import com.cgr.mapper.UserMapper;
+import com.cgr.mapper.*;
 import com.cgr.service.CommonUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -20,6 +19,13 @@ public class CommonUserServiceImpl implements CommonUserService {
     private UserMapper userMapper;
     @Autowired
     private RoleMapper roleMapper;
+    @Autowired
+    private VehicleMapper vehicleMapper;
+    @Autowired
+    private PayMapper payMapper;
+    @Autowired
+    private ParkingMapper parkingMapper;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void add(CPUser user) {
@@ -36,6 +42,9 @@ public class CommonUserServiceImpl implements CommonUserService {
     public void deleteById(Long id) {
         userMapper.deleteById(id);
         roleMapper.deleteByUserId(id);
+        vehicleMapper.deleteByUserId(id);
+        payMapper.deleteByUserId(id);
+        parkingMapper.deleteByUserId(id);
     }
 
     @Override
@@ -43,6 +52,9 @@ public class CommonUserServiceImpl implements CommonUserService {
     public void deleteBatch(List<Long> ids) {
         userMapper.deleteBatch(ids);
         roleMapper.deleteBatch(ids);
+        vehicleMapper.deleteBatch(ids);
+        payMapper.deleteBatch(ids);
+        parkingMapper.deleteBatch(ids);
     }
 
     @Override

@@ -230,15 +230,24 @@ async function doRegister() {
     if (!valid) return;
 
     registerLoading.value = true;
+
     const res = await registerApi(regForm.value);
-    ElMessage.success("注册成功");
-    localStorage.setItem("loginUser", JSON.stringify(res.data));
-    localStorage.setItem("Token", res.data.token);
-    // isLogin.value = true;
-    regForm.value = { username: "", password: "", email: "" };
-    router.push("/home");
+
+    // 后端返回处理
+    if (res.code === 200) {
+      ElMessage.success("注册成功");
+      localStorage.setItem("loginUser", JSON.stringify(res.data));
+      localStorage.setItem("Token", res.data.token);
+      regForm.value = { username: "", password: "", email: "" };
+      router.push("/home");
+    } else {
+      // 避免空 msg 情况
+      ElMessage.error(res.msg || "注册失败");
+    }
+
   } catch (err) {
-    ElMessage.error(err.message || "注册失败");
+    // 处理 HTTP 错误或 JS 错误
+    ElMessage.error(err?.message || "注册失败");
   } finally {
     registerLoading.value = false;
   }

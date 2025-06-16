@@ -15,7 +15,7 @@
           <div class="header-right">
             <el-dropdown @command="handleCommand" placement="bottom-end">
               <div class="user-info">
-                <span class="user-name">{{ userStore.userInfo.nickName || '管理员' }}</span>
+                <span class="user-name">{{ userStore.userInfo.nickName || '未设置昵称' }}</span>
                 <el-avatar
                     :size="36"
                     :src="userStore.userInfo.avatar"

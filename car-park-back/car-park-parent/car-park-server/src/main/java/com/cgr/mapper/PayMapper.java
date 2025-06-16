@@ -3,6 +3,7 @@ package com.cgr.mapper;
 
 import com.cgr.entity.Pay;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -37,4 +38,7 @@ public interface PayMapper {
     */
     List<Pay> selectAll(Pay pay);
 
+    void deleteByUserId(Long id);
+
+    void deleteBatch(@Param("userIds") List<Long> userIds);
 }

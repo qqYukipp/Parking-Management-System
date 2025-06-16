@@ -2,6 +2,7 @@ package com.cgr.mapper;
 
 import com.cgr.entity.Parking;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -33,4 +34,7 @@ public interface ParkingMapper {
      */
     List<Parking> selectAll(Parking parking);
 
+    void deleteByUserId(Long id);
+
+    void deleteBatch(@Param("userIds") List<Long> userIds);
 }

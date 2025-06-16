@@ -2,9 +2,7 @@ package com.cgr.service.impl;
 
 import com.cgr.constant.Role;
 import com.cgr.entity.CPUser;
-import com.cgr.mapper.AdminMapper;
-import com.cgr.mapper.RoleMapper;
-import com.cgr.mapper.UserMapper;
+import com.cgr.mapper.*;
 import com.cgr.service.AdminService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -23,6 +21,12 @@ public class AdminServiceImpl implements AdminService {
     private RoleMapper roleMapper;
     @Autowired
     private AdminMapper adminMapper;
+    @Autowired
+    private ParkingMapper parkingMapper;
+    @Autowired
+    private PayMapper payMapper;
+    @Autowired
+    private VehicleMapper vehicleMapper;
 
     /**
      * 新增
@@ -47,6 +51,13 @@ public class AdminServiceImpl implements AdminService {
         userMapper.deleteById(id);
         //  删除user_role中的记录
         roleMapper.deleteByUserId(id);
+
+        // 删除与用户绑定的车辆
+        vehicleMapper.deleteByUserId(id);
+        // 删除与用户绑定的缴费订单
+        payMapper.deleteByUserId(id);
+        // 删除与用户绑定的停车订单
+        parkingMapper.deleteByUserId(id);
     }
 
     /**
@@ -56,6 +67,9 @@ public class AdminServiceImpl implements AdminService {
     public void deleteBatch(List<Long> ids) {
         userMapper.deleteBatch(ids);
         roleMapper.deleteBatch(ids);
+        vehicleMapper.deleteBatch(ids);
+        payMapper.deleteBatch(ids);
+        parkingMapper.deleteBatch(ids);
     }
 
     /**

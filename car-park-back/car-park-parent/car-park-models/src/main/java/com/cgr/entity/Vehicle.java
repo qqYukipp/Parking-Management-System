@@ -10,7 +10,7 @@ public class Vehicle {
     /** 车牌号 */
     private String name;
     /** 所属用户Id */
-    private Integer userId;
+    private Long userId;
     private String userName;
 
     public Integer getId() {
@@ -29,11 +29,11 @@ public class Vehicle {
         this.name = name;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
