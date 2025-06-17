@@ -44,7 +44,7 @@
 
     <delete id="deleteBatch">
         delete from `pay`
-        where id in
+        where user_id in
         <foreach item="item" index="index" collection="userIds" open="(" separator="," close=")">
             #{item}
         </foreach>
