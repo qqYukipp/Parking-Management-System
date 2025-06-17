@@ -37,4 +37,5 @@ public interface LocationMapper {
     */
     List<Location> selectAll(Location location);
 
+    void freeParkingLot(Integer locationId);
 }

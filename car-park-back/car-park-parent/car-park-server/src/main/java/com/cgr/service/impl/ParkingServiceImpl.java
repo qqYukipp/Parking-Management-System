@@ -11,6 +11,7 @@ import com.cgr.entity.Parking;
 import com.cgr.entity.ParkingLot;
 import com.cgr.entity.Pay;
 import com.cgr.exception.CustomException;
+import com.cgr.mapper.LocationMapper;
 import com.cgr.mapper.ParkingMapper;
 import com.cgr.mapper.VehicleMapper;
 import com.cgr.service.ParkingLotService;
@@ -43,6 +44,8 @@ public class ParkingServiceImpl implements ParkingService {
     private RedisUtil redisUtil;
     @Autowired
     private VehicleMapper vehicleMapper;
+    @Autowired
+    private LocationMapper locationMapper;
 
     /**
      * 新增
@@ -257,6 +260,7 @@ public class ParkingServiceImpl implements ParkingService {
         if (ObjUtil.isNotEmpty(parkingLot)) {
             parkingLot.setStatus("空闲");
             parkingLotService.updateById(parkingLot);
+            locationMapper.freeParkingLot(parking.getLocationId());
         }
     }
 }

@@ -55,5 +55,10 @@
         </set>
         where id = #{id} 
     </update>
+    <update id="freeParkingLot">
+        update `location`
+        set num = num + 1
+        where id = #{locationId}
+    </update>
 
 </mapper>
