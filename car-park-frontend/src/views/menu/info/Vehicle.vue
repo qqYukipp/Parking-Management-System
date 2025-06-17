@@ -26,7 +26,6 @@
       <!--      <el-button type="primary" plain @click="handleAdd">新增</el-button>-->
       <el-button type="danger" plain @click="delBatch">解绑车辆</el-button>
       <el-button type="warning" plain style="margin-left: 10px"
-                 v-if="data.user.roleList.includes('USER')"
                  @click="openBindDialog">绑定我的车辆</el-button>
       <el-button type="primary"
                  v-if="data.user.roleList.includes('ADMIN')"

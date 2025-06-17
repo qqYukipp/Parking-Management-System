@@ -1,5 +1,6 @@
 package com.cgr.service.impl;
 
+import com.cgr.constant.Constants;
 import com.cgr.constant.Role;
 import com.cgr.entity.CPUser;
 import com.cgr.entity.LoginUser;
@@ -14,6 +15,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +28,8 @@ public class PayServiceImpl implements PayService {
     private UserMapper userMapper;
     @Autowired
     private VehicleMapper vehicleMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 新增
@@ -61,7 +65,8 @@ public class PayServiceImpl implements PayService {
         }
 
         user.setAccount(user.getAccount() - pay.getPrice());
-        userMapper.updateById(user);
+        userMapper.updateInfo(user);
+        redisTemplate.delete(Constants.LOGIN_USER_KEY + pay.getUserId());
 
         pay.setStatus("已缴费");
         payMapper.updateById(pay);
