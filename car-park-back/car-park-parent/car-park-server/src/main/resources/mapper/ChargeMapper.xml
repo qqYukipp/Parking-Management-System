@@ -1,0 +1,31 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cgr.mapper.ChargeMapper">
+
+
+    <update id="updateCharge" parameterType="com.cgr.entity.Charge">
+        UPDATE charge
+        <set>
+            <if test="firstHour != null">
+                first_hour = #{firstHour},
+            </if>
+            <if test="perHour != null">
+                per_hour = #{perHour},
+            </if>
+            <if test="dailyCap != null">
+                daily_cap = #{dailyCap},
+            </if>
+            <if test="monthlyFee != null">
+                monthly_fee = #{monthlyFee},
+            </if>
+        </set>
+        WHERE id = 1
+    </update>
+
+
+    <select id="getInfo" resultType="com.cgr.entity.Charge">
+        select * from charge
+        where id = 1
+    </select>
+</mapper>
