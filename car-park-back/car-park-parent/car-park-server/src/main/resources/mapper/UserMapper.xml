@@ -59,4 +59,8 @@
         SELECT COUNT(1) FROM cp_user WHERE username = #{username}
     </select>
 
+    <select id="selectByUsername" resultType="com.cgr.entity.CPUser">
+        SELECT * FROM cp_user WHERE username = #{username}
+    </select>
+
 </mapper>

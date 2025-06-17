@@ -38,7 +38,15 @@ public class UserController {
      */
     @PutMapping("/update")
     public ResponseModel updateById(@RequestBody CPUser user) {
-        userMapper.updateById(user);
+        String username = user.getUsername();
+        Integer count = userMapper.countByUsername(username);
+        if(count > 0){
+            CPUser oldUser = userMapper.selectByUsername(username);
+            if(oldUser.getId()!=user.getId()){
+                return ResponseModel.error("用户名已存在");
+            }
+        }
+        userService.updateById(user);
         return ResponseModel.success();
     }
 

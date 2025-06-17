@@ -6,4 +6,5 @@ import com.cgr.entity.CPUser;
 
 public interface UserService extends IService<CPUser> {
     void updatePassword(PasswordUpdateDTO passwordUpdateDTO);
+
 }

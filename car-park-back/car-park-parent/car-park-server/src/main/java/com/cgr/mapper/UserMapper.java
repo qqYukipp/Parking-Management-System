@@ -15,4 +15,6 @@ public interface UserMapper extends BaseMapper<CPUser> {
     List<CPUser> findCommonUser(CPUser user);
 
     int countByUsername(String username);
+
+    CPUser selectByUsername(String username);
 }
