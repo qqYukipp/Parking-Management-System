@@ -168,12 +168,21 @@ public class ParkingServiceImpl implements ParkingService {
 
             long totalDay = totalMinutes / 1440;    // 60 * 24
 
-            //不足一天
+            //不足一天 且超过首小时
             if(totalDay == 0 ){
-                price = totalMinutes / 60 * PRE_HOUR >= DAILY_CAP - FIRST_HOUR ? DAILY_CAP : totalMinutes / 60 * PRE_HOUR + FIRST_HOUR - PRE_HOUR;
+
+                long totalHour = totalMinutes / 60;
+                boolean flag = totalMinutes % 60 > 0 ? true : false;
+                //刚好整小时
+                if(!flag){
+                    price = totalHour * PRE_HOUR + FIRST_HOUR - PRE_HOUR >= DAILY_CAP ? DAILY_CAP : totalHour * PRE_HOUR + FIRST_HOUR - PRE_HOUR;
+                }else{
+                    price = totalHour * PRE_HOUR + FIRST_HOUR >= DAILY_CAP ? DAILY_CAP : totalHour * PRE_HOUR + FIRST_HOUR;
+                }
                 initPay(parking, price,false);
                 updateParkingLotStatus(parking);
                 return;
+
             }
 
             // 超过一天
@@ -190,11 +199,20 @@ public class ParkingServiceImpl implements ParkingService {
                 return;
             }
 
-            long restHour = restMinutes / 60;
-            price += (restHour + 1) * PRE_HOUR >= DAILY_CAP ? DAILY_CAP : (restHour + 1) * PRE_HOUR;
+            //刚好是小时的整数倍
+            long restHours = restMinutes / 60;
+            if(restMinutes % 60 == 0){
+                price += restHours * PRE_HOUR >= DAILY_CAP ? DAILY_CAP : restHours * PRE_HOUR;
+                initPay(parking, price,false);
+                updateParkingLotStatus(parking);
+                return;
+            }
 
+            //不是小时的整数倍
+            price += (restHours + 1) * PRE_HOUR >= DAILY_CAP ? DAILY_CAP : (restHours + 1) * PRE_HOUR;
             initPay(parking, price,false);
             updateParkingLotStatus(parking);
+
         }
 
     }
