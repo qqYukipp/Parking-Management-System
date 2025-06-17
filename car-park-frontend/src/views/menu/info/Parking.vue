@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="card" style="margin-bottom: 5px;">
-      <el-input v-model="data.username" placeholder="请输入用户姓名查询"
+      <el-input v-model="data.userName" placeholder="请输入用户姓名查询"
                 v-if="data.user.roleList.includes('ADMIN')"
                 style="width: 240px; margin-right: 5px"></el-input>
       <el-input v-model="data.vehicleName" placeholder="请输入车牌号查询" style="width: 240px"></el-input>
@@ -17,7 +17,7 @@
 
     <div class="card" style="margin-bottom: 5px;">
       <el-table :data="data.tableData" stripe>
-        <el-table-column prop="username" label="用户"></el-table-column>
+        <el-table-column prop="userName" label="用户"></el-table-column>
         <el-table-column prop="vehicleName" label="车牌号"></el-table-column>
         <el-table-column prop="locationName" label="区域名称"></el-table-column>
         <el-table-column prop="parkingLotName" label="车位编号"></el-table-column>
@@ -105,7 +105,7 @@ const data = reactive({
   pageSize: 5,
   formVisible: false,
   form: {},
-  username: null,
+  userName: null,
   vehicleName: null,
   userList: [],
   vehicleList: [],
@@ -196,7 +196,7 @@ const load = () => {
     params: {
       pageNum: data.pageNum,
       pageSize: data.pageSize,
-      username: data.username,
+      userName: data.userName,
       vehicleName: data.vehicleName
     }
   }).then(res => {
