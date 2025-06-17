@@ -99,8 +99,7 @@ router.beforeEach(async (to, from, next) => {
                 // 保存用户信息
                 localStorage.setItem('loginUser', JSON.stringify(loginUserVo));
                 localStorage.setItem('Token', loginUserVo.token)
-                console.log(localStorage.getItem('Token'))
-                console.log('OAuth2登录成功，用户信息:', loginUserVo);
+
 
                 // 删除Cookie
                 document.cookie = 'loginUserVo=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';

@@ -102,12 +102,20 @@
     <!-- 批量修改类型 -->
     <update id="updateTypeByIds" parameterType="map">
         UPDATE vehicle
-        SET type = #{carType}
+        <set>
+            type = #{carType}
+            <!-- 只有当 carType == 2 时，才更新起止时间 -->
+            <if test="carType == 2">
+                , monthly_start_time = NOW()
+                , monthly_end_time   = DATE_ADD(NOW(), INTERVAL 1 MONTH)
+            </if>
+        </set>
         WHERE id IN
-        <foreach item="id" collection="vehicleIds" open="(" separator="," close=")">
+        <foreach item="id" index="idx" collection="vehicleIds" open="(" separator="," close=")">
             #{id}
         </foreach>
     </update>
+
 
     <!-- 购买月卡：设置为月租车，并更新起止时间 -->
     <update id="monthlyCharge" parameterType="long">
