@@ -295,7 +295,7 @@ const save = () => {
 }
 
 const reset = () => {
-  data.username = null
+  data.userName = null
   data.vehicleName = null
   load()
 }
