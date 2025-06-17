@@ -13,7 +13,7 @@
           <el-button
               v-if="isAdmin"
               type="primary"
-              size="medium"
+              size="large"
               style="font-size: 14px; padding: 6px 20px"
               @click="openEditDialog"
           >
