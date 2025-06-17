@@ -10,9 +10,7 @@
     </div>
 
     <div class="card" style="margin-bottom: 5px" >
-      <el-button type="primary" plain
-                 v-if="data.user.roleList.includes('ADMIN')"
-                 @click="handleAdd">车辆入场</el-button>
+      <el-button type="primary" plain @click="handleAdd">车辆入场</el-button>
     </div>
 
     <div class="card" style="margin-bottom: 5px;">
@@ -45,7 +43,7 @@
 
     <el-dialog title="停车信息" v-model="data.formVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
       <el-form :rules="data.rules" :model="data.form" label-width="80px"  style="padding: 20px 30px" ref="formRef">
-        <el-form-item label="用户" prop="userId" v-if="data.flag">
+        <el-form-item label="用户" prop="userId" v-if="data.flag && data.user.roleList.includes('ADMIN')">
           <el-select style="width: 100%" v-model="data.form.userId" @change="initVehicle">
             <el-option v-for="item in data.userList" :key="item.id" :value="item.id" :label="item.username"></el-option>
           </el-select>
@@ -89,12 +87,12 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue"
+import {reactive, ref} from "vue"
 import request from "@/utils/request.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {Delete, Edit} from "@element-plus/icons-vue";
-const baseUrl = import.meta.env.VITE_BASE_URL
 
+const baseUrl = import.meta.env.VITE_BASE_URL
 
 
 const data = reactive({
@@ -117,22 +115,22 @@ const data = reactive({
   flag: true,
   rules: {
     userId: [
-      { required: true, message: '请选择用户', trigger: 'blur' },
+      {required: true, message: '请选择用户', trigger: 'blur'},
     ],
     vehicleId: [
-      { required: true, message: '请选择车辆', trigger: 'blur' },
+      {required: true, message: '请选择车辆', trigger: 'blur'},
     ],
     locationId: [
-      { required: true, message: '请选择区域', trigger: 'blur' },
+      {required: true, message: '请选择区域', trigger: 'blur'},
     ],
     parkingLotId: [
-      { required: true, message: '请选择车位', trigger: 'blur' },
+      {required: true, message: '请选择车位', trigger: 'blur'},
     ],
     startTime: [
-      { required: true, message: '请选择入场时间', trigger: 'blur' },
+      {required: true, message: '请选择入场时间', trigger: 'blur'},
     ],
     endTime: [
-      { required: true, message: '请选择出场时间', trigger: 'blur' },
+      {required: true, message: '请选择出场时间', trigger: 'blur'},
     ]
   },
 })
@@ -149,12 +147,31 @@ const loadUser = () => {
     }
   })
 }
-loadUser()
+
+// 只有管理员才加载所有用户
+if (data.user.roleList.includes('ADMIN')) {
+  loadUser()
+}
 
 const initVehicle = (userId) => {
   request.get('/vehicle/selectAll', {
     params: {
       userId: userId
+    }
+  }).then(res => {
+    if (res.code === 200) {
+      data.vehicleList = res.data
+    } else {
+      ElMessage.error(res.msg)
+    }
+  })
+}
+
+// 加载当前用户的车辆信息
+const loadUserVehicles = () => {
+  request.get('/vehicle/selectAll', {
+    params: {
+      userId: data.user.id
     }
   }).then(res => {
     if (res.code === 200) {
@@ -209,6 +226,16 @@ const handleAdd = () => {
   data.form = {}
   data.flag = true
   data.formVisible = true
+
+  // 根据用户角色加载不同的数据
+  if (data.user.roleList.includes('ADMIN')) {
+    // 管理员可以选择任意用户，不预先加载车辆
+    data.vehicleList = []
+  } else {
+    // 普通用户只能操作自己的车辆，预设用户ID并加载车辆
+    data.form.userId = data.user.id
+    loadUserVehicles()
+  }
 }
 
 const handleEdit = (row) => {
@@ -238,7 +265,7 @@ const getNowTime = () => {
 
 
 const openBindDialog = () => {
-  data.bindForm = { name: '' }
+  data.bindForm = {name: ''}
   data.bindDialogVisible = true
 }
 
@@ -263,6 +290,11 @@ const doBindVehicle = () => {
 }
 
 const add = () => {
+  // 如果是普通用户，确保userId是当前用户的ID
+  if (!data.user.roleList.includes('ADMIN')) {
+    data.form.userId = data.user.id
+  }
+
   request.post('/parking/add', data.form).then(res => {
     if (res.code === 200) {
       data.formVisible = false
