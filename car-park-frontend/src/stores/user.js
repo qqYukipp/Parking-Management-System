@@ -23,6 +23,7 @@ export const useUserStore = defineStore('user', () => {
         userInfo.value.avatar = newUserInfo.avatar
         userInfo.value.nickName = newUserInfo.nickName
         userInfo.value.account = newUserInfo.account
+        userInfo.value.roleList = newUserInfo.roleList
     }
 
     function setDynamicRoutesLoaded(value) {

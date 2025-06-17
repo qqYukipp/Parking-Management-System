@@ -41,4 +41,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, CPUser> implements 
         user.setPassword(encodedNewPassword);
         userMapper.updateById(user);
     }
+
+    @Override
+    public void updateInfo(CPUser user) {
+        userMapper.updateInfo(user);
+    }
 }

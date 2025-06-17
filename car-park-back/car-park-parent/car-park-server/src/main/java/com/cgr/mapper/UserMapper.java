@@ -17,4 +17,6 @@ public interface UserMapper extends BaseMapper<CPUser> {
     int countByUsername(String username);
 
     CPUser selectByUsername(String username);
+
+    void updateInfo(CPUser user);
 }

@@ -120,7 +120,7 @@ public class VehicleServiceImpl implements VehicleService {
         Double account = user.getAccount();
         if(account < monthlyFee){
             System.out.println(account);
-            throw new RuntimeException("账户余额不足");
+            throw new RuntimeException("账户余额不足,请前往个人中心充值");
         }
         user.setAccount(account - monthlyFee);
         userMapper.updateById(user);

@@ -171,9 +171,13 @@
         <el-form-item label="车牌号" prop="name">
           <el-input
               v-model="data.form.name"
-              placeholder="请输入车牌号"
+              placeholder="请输入车牌号，例如：粤A 12345"
               style="height: 40px;"
+              @blur="validatePlateNumber"
           />
+          <div style="font-size: 12px; color: #909399; margin-top: 5px;">
+            支持格式：粤A 12345、京B DF1234（新能源）
+          </div>
         </el-form-item>
 
         <el-form-item
@@ -273,13 +277,19 @@
 
       <el-form :model="data.bindForm" :rules="data.bindRules" ref="bindFormRef" label-width="80px">
         <el-form-item label="车牌号" prop="name">
-          <el-input v-model="data.bindForm.name" placeholder="请输入车牌号 例如 粤X 12345" />
+          <el-input
+              v-model="data.bindForm.name"
+              placeholder="请输入车牌号，例如：粤A 12345"
+              @blur="validateBindPlateNumber"
+          />
+          <div style="font-size: 12px; color: #909399; margin-top: 5px;">
+            支持格式：粤A 12345、京B DF1234（新能源）
+          </div>
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="data.bindDialogVisible = false">取消</el-button>
-
           <el-button type="primary" @click="doBindVehicle">绑定</el-button>
         </span>
       </template>
@@ -289,24 +299,42 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import {reactive, ref, onMounted} from 'vue'
 import request from '@/utils/request.js'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Delete, Edit } from '@element-plus/icons-vue'
+import {ElMessage, ElMessageBox} from 'element-plus'
+import {Delete, Edit} from '@element-plus/icons-vue'
 
 // 车牌校验正则：支持传统蓝牌、黄牌和新能源车牌
-// 传统蓝黄牌：省份简称 + 大写字母 + 5 位字母或数字
-// 新能源车牌：省份简称 + 大写字母 + D/F + 5 位字母或数字
-const platePattern = /^[\u4e00-\u9fa5][A-Z]\s(?:[A-Z0-9]{5}|[DF][A-HJ-NP-Z0-9]{5})$/;
+// 传统蓝黄牌：省份简称 + 大写字母 + 空格 + 5 位字母或数字
+// 新能源车牌：省份简称 + 大写字母 + 空格 + D/F + 5 位字母或数字
+const platePattern = /^[\u4e00-\u9fa5][A-Z]\s[A-HJ-NP-Z0-9]{5}$|^[\u4e00-\u9fa5][A-Z]\s[DF][A-HJ-NP-Z0-9]{5}$/;
 
+// 车牌号验证函数
 function validatePlate(rule, value, callback) {
   if (!value) {
     return callback(new Error('请输入车牌号'));
   }
-  if (!platePattern.test(value)) {
-    return callback(new Error('请输入正确的车牌号,确保省份与号码之间有一个空格'));
+
+  // 去除多余空格并规范化
+  const normalizedValue = value.trim().replace(/\s+/g, ' ');
+
+  if (!platePattern.test(normalizedValue)) {
+    return callback(new Error('请输入正确的车牌号格式，例如：粤A 12345 或 粤B DF1234'));
   }
   callback();
+}
+
+// 手动验证车牌号的函数
+const validatePlateNumber = () => {
+  if (data.form.name) {
+    data.form.name = data.form.name.trim().replace(/\s+/g, ' ').toUpperCase();
+  }
+}
+
+const validateBindPlateNumber = () => {
+  if (data.bindForm.name) {
+    data.bindForm.name = data.bindForm.name.trim().replace(/\s+/g, ' ').toUpperCase();
+  }
 }
 
 const bindFormRef = ref() // 确保有这个ref
@@ -327,13 +355,11 @@ const data = reactive({
     name: ''
   },
   rules: {
-    name: [{ required: true, message: '请输入车牌号', trigger: 'blur' }],
-    userId: [{ required: true, message: '请选择用户', trigger: 'blur' }]
+    name: [{validator: validatePlate, trigger: 'blur'}],
+    userId: [{required: true, message: '请选择用户', trigger: 'blur'}]
   },
   bindRules: {
-    name: [
-      { validator: validatePlate, trigger: 'blur' }
-    ]
+    name: [{validator: validatePlate, trigger: 'blur'}]
   },
   // 设置车辆类型相关
   setTypeVisible: false,
@@ -362,7 +388,7 @@ const load = () => {
   if (!data.user.roleList.includes('ADMIN')) {
     params.userId = data.user.id
   }
-  request.get('/vehicle/selectPage', { params }).then(res => {
+  request.get('/vehicle/selectPage', {params}).then(res => {
     data.tableData = res.data?.list || []
     data.total = res.data?.total
   })
@@ -380,22 +406,32 @@ const handleAdd = () => {
 // 车辆类型文字映射
 const typeText = t => {
   switch (t) {
-    case 1: return '内部车'
-    case 2: return '月租车'
-    case 3: return '临时车'
-    case 4: return '黑名单'
-    default: return '未知'
+    case 1:
+      return '内部车'
+    case 2:
+      return '月租车'
+    case 3:
+      return '临时车'
+    case 4:
+      return '黑名单'
+    default:
+      return '未知'
   }
 }
 
 // 车辆类型标签颜色映射
 const getTypeTagType = t => {
   switch (t) {
-    case 1: return 'primary'
-    case 2: return 'success'
-    case 3: return 'warning'
-    case 4: return 'danger'
-    default: return 'info'
+    case 1:
+      return 'primary'
+    case 2:
+      return 'success'
+    case 3:
+      return 'warning'
+    case 4:
+      return 'danger'
+    default:
+      return 'info'
   }
 }
 
@@ -426,35 +462,55 @@ const getEndTimeColor = endTimeStr => {
 
 // 打开编辑弹窗
 const handleEdit = row => {
-  data.form = { ...row }
+  data.form = {...row}
   data.formVisible = true
 }
 
 // 新增
 const add = () => {
+  // 提交前再次验证车牌号格式
+  if (!platePattern.test(data.form.name)) {
+    ElMessage.error('车牌号格式不正确，请检查后重新输入')
+    return
+  }
+
   request.post('/vehicle/add', data.form).then(res => {
     if (res.code === 200) {
       ElMessage.success('操作成功')
       data.formVisible = false
       load()
-    } else ElMessage.error(res.msg)
+    } else {
+      ElMessage.error(res.msg)
+    }
+  }).catch(error => {
+    ElMessage.error('操作失败，请检查车牌号格式或联系管理员')
   })
 }
 
 // 更新
 const update = () => {
+  // 提交前再次验证车牌号格式
+  if (!platePattern.test(data.form.name)) {
+    ElMessage.error('车牌号格式不正确，请检查后重新输入')
+    return
+  }
+
   request.put('/vehicle/update', data.form).then(res => {
     if (res.code === 200) {
       ElMessage.success('操作成功')
       data.formVisible = false
       load()
-    } else ElMessage.error(res.msg)
+    } else {
+      ElMessage.error(res.msg)
+    }
+  }).catch(error => {
+    ElMessage.error('操作失败，请检查车牌号格式或联系管理员')
   })
 }
 
 // 删除
 const del = id => {
-  ElMessageBox.confirm('解绑后数据无法恢复，是否继续？', '提示', { type: 'warning' })
+  ElMessageBox.confirm('解绑后数据无法恢复，是否继续？', '提示', {type: 'warning'})
       .then(() => {
         request.delete(`/vehicle/delete/${id}`).then(res => {
           if (res.code === 200) {
@@ -476,9 +532,9 @@ const delBatch = () => {
     ElMessage.warning('请选择要解绑的车辆')
     return
   }
-  ElMessageBox.confirm('解绑后数据无法恢复，是否继续？', '提示', { type: 'warning' })
+  ElMessageBox.confirm('解绑后数据无法恢复，是否继续？', '提示', {type: 'warning'})
       .then(() => {
-        request.delete('/vehicle/delete/batch', { data: data.ids }).then(res => {
+        request.delete('/vehicle/delete/batch', {data: data.ids}).then(res => {
           if (res.code === 200) {
             ElMessage.success('解绑成功')
             load()
@@ -514,7 +570,7 @@ const confirmSetType = () => {
   ElMessageBox.confirm(
       `确认将选中的 ${data.selectedVehicles.length} 辆车辆设置为【${typeNames[data.selectedType]}】？`,
       '确认设置',
-      { type: 'info' }
+      {type: 'info'}
   ).then(() => {
     request.post(`/vehicle/setType/${data.selectedType}`, data.ids).then(res => {
       if (res.code === 200) {
@@ -531,14 +587,19 @@ const confirmSetType = () => {
 }
 
 const openBindDialog = () => {
-  data.bindForm = { name: '' }
+  data.bindForm = {name: ''}
   data.bindDialogVisible = true
 }
-
 
 const doBindVehicle = () => {
   bindFormRef.value.validate(valid => {
     if (!valid) return
+
+    // 提交前再次验证车牌号格式
+    if (!platePattern.test(data.bindForm.name)) {
+      ElMessage.error('车牌号格式不正确，请检查后重新输入')
+      return
+    }
 
     request.post('/vehicle/add', {
       name: data.bindForm.name,
@@ -551,6 +612,8 @@ const doBindVehicle = () => {
       } else {
         ElMessage.error(res.msg || "绑定失败")
       }
+    }).catch(error => {
+      ElMessage.error('绑定失败，请检查车牌号格式或联系管理员')
     })
   })
 }
@@ -571,22 +634,25 @@ const reset = () => {
 }
 
 import {useUserStore} from "@/stores/user.js";
+
 const userStore = useUserStore()
 
 //购买月卡后需要更新userStore
 const updateInfo = () => {
   request.get('/user/getInfo').then(res => {
+
     userStore.setUser(res.data)
   })
 }
 // 购买月卡
 const purchaseMonthly = row => {
   if (row.type === 2) return
-  ElMessageBox.confirm(`确认为车辆【${row.name}】购买月卡？`, '提示', { type: 'info' })
+  ElMessageBox.confirm(`确认为车辆【${row.name}】购买月卡？`, '提示', {type: 'info'})
       .then(() => {
         request.post(`/vehicle/recharge/${row.id}`).then(res => {
           if (res.code === 200) {
-            updateInfo()
+            //updateInfo()
+            console.log(res.data)
             ElMessage.success('购买成功')
             load()
           } else ElMessage.error(res.msg)

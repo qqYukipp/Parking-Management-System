@@ -3,6 +3,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cgr.mapper.UserMapper">
 
+    <update id="updateInfo">
+        UPDATE cp_user
+        <set>
+            <if test="username != null and username != ''">username = #{username},</if>
+            <if test="nickName != null and nickName != ''">nick_name = #{nickName},</if>
+            <if test="avatar != null and avatar != ''">avatar = #{avatar},</if>
+            <if test="email != null and email != ''">email = #{email},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="sex != null">sex = #{sex},</if>
+            <if test="account != null">account = #{account},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
     <delete id="deleteBatch" parameterType="list">
         delete from cp_user
         where id in

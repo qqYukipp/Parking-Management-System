@@ -206,14 +206,19 @@ async function doLogin() {
     loginLoading.value = true;
     const res = await loginApi(loginForm.value);
 
+    if(res.code === 200){
+      userStore.setUser(res.data)
+      localStorage.setItem("Token", res.data.token);
+      ElMessage.success("登录成功");
+      router.push("/home");
+    }
+    else{
+      ElMessage.error(res.msg || "登录失败");
+    }
     // TODO
     /*if (rememberMe.value) {
       localStorage.setItem("loginUser", JSON.stringify(res.data));
     }*/
-    userStore.setUser(res.data)
-    localStorage.setItem("Token", res.data.token);
-    ElMessage.success("登录成功");
-    router.push("/home");
   } catch (err) {
     ElMessage.error(err.message || "登录失败");
   } finally {
