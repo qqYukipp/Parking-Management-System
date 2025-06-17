@@ -13,7 +13,7 @@
         <where>
             <if test="id != null"> and parking.id = #{id}</if>
             <if test="userId != null"> and parking.user_id = #{userId}</if>
-            <if test="userName != null"> and user.name like concat('%', #{userName}, '%')</if>
+            <if test="userName != null"> and user.username like concat('%', #{userName}, '%')</if>
             <if test="vehicleId != null"> and parking.vehicle_id like concat('%', #{vehicleId}, '%')</if>
             <if test="vehicleName != null"> and vehicle.name like concat('%', #{vehicleName}, '%')</if>
             <if test="locationId != null"> and parking.location_id = #{locationId}</if>
