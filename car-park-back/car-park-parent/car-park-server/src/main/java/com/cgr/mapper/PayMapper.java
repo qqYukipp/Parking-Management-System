@@ -41,4 +41,8 @@ public interface PayMapper {
     void deleteByUserId(Long id);
 
     void deleteBatch(@Param("userIds") List<Long> userIds);
+
+    void deleteBatchByVehicleIds(@Param("vehicleIds") List<Long> ids);
+
+    void deleteByVehicleId(Long id);
 }

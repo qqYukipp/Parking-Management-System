@@ -77,6 +77,12 @@
             #{id}
         </foreach>
     </delete>
+    <delete id="deleteBatchByVehicleIds">
+        DELETE FROM vehicle WHERE id IN
+        <foreach item="id" index="idx" collection="vehicleIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 
     <!-- 完整插入：name, user_id, type, monthly_start_time, monthly_end_time -->
     <insert id="insert" parameterType="com.cgr.entity.Vehicle" useGeneratedKeys="true" keyProperty="id">

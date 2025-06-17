@@ -5,6 +5,8 @@ import com.cgr.constant.VehicleConstant;
 import com.cgr.entity.CPUser;
 import com.cgr.entity.LoginUser;
 import com.cgr.entity.Vehicle;
+import com.cgr.mapper.ParkingMapper;
+import com.cgr.mapper.PayMapper;
 import com.cgr.mapper.UserMapper;
 import com.cgr.mapper.VehicleMapper;
 import com.cgr.service.VehicleService;
@@ -29,6 +31,10 @@ public class VehicleServiceImpl implements VehicleService {
     private RedisUtil redisUtil;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private ParkingMapper parkingMapper;
+    @Autowired
+    private PayMapper payMapper;
 
 
     /**
@@ -51,15 +57,17 @@ public class VehicleServiceImpl implements VehicleService {
      */
     public void deleteById(Long id) {
         vehicleMapper.deleteById(id);
+        payMapper.deleteByVehicleId(id);
+        parkingMapper.deleteByVehicleId(id);
     }
 
     /**
      * 批量删除
      */
     public void deleteBatch(List<Long> ids) {
-        for (Long id : ids) {
-            vehicleMapper.deleteById(id);
-        }
+        vehicleMapper.deleteBatchByVehicleIds(ids);
+        parkingMapper.deleteBatchByVehicleIds(ids);
+        payMapper.deleteBatchByVehicleIds(ids);
     }
 
     /**

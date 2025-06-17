@@ -38,4 +38,7 @@ public interface ParkingMapper {
 
     void deleteBatch(@Param("userIds") List<Long> userIds);
 
+    void deleteBatchByVehicleIds(@Param("vehicleIds") List<Long> ids);
+
+    void deleteByVehicleId(Long id);
 }

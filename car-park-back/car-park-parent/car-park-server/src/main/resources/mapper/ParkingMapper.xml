@@ -51,6 +51,17 @@
             #{item}
         </foreach>
     </delete>
+    <delete id="deleteBatchByVehicleIds">
+        delete from `parking`
+        where vehicle_id in
+        <foreach item="item" index="index" collection="vehicleIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <delete id="deleteByVehicleId">
+        delete from `parking`
+        where vehicle_id = #{vehicleId}
+    </delete>
 
     <insert id="insert" parameterType="com.cgr.entity.Parking" useGeneratedKeys="true" keyProperty="id">
         insert into `parking`

@@ -49,6 +49,17 @@
             #{item}
         </foreach>
     </delete>
+    <delete id="deleteBatchByVehicleIds">
+        delete from `pay`
+        where vehicle_id in
+        <foreach item="item" index="index" collection="vehicleIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <delete id="deleteByVehicleId">
+        delete from `pay`
+        where vehicle_id = #{vehicleId}
+    </delete>
 
     <insert id="insert" parameterType="com.cgr.entity.Pay" useGeneratedKeys="true" keyProperty="id">
         insert into `pay`

@@ -51,4 +51,6 @@ public interface VehicleMapper {
     int selectTypeById(Long vehicleId);
 
     void updateTypeTempById(Long vehicleId);
+
+    void deleteBatchByVehicleIds(@Param("vehicleIds") List<Long> ids);
 }
